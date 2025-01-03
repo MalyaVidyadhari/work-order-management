@@ -1,20 +1,47 @@
 package com.cmms.workordermanagement.controller;
 
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.cmms.workordermanagement.model.WorkOrder;
+import com.cmms.workordermanagement.service.WorkOrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/workordermanagement")
+@RequestMapping("/api/workorders")
 public class WorkOrderController {
 
-    @Value("${server.port}")
-    private String port;
+    @Autowired
+    private WorkOrderService workOrderService;
 
-    @GetMapping("/order")
-    public String getOrder(){ return "order number is : "+port;}
+    @GetMapping
+    public List<WorkOrder> getAllWorkOrders() {
+        return workOrderService.getAllWorkOrders();
+    }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<WorkOrder> getWorkOrderById(@PathVariable Long id){
+        WorkOrder workOrder = workOrderService.getWorkOrderById(id).orElseThrow(() -> new RuntimeException("WorkOrder not found"));
+        return ResponseEntity.ok(workOrder);
+    }
+
+    @PostMapping
+    public WorkOrder createWorkOrder(@RequestBody WorkOrder workOrder){
+        return workOrderService.createWorkOrder(workOrder);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<WorkOrder> updateWorkOrder(@PathVariable Long id, @RequestBody WorkOrder workOrderDetails){
+        WorkOrder updateWorkOrder = workOrderService.updateWorkOrder(id, workOrderDetails);
+        return ResponseEntity.ok(updateWorkOrder);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWorkOrder(@PathVariable Long id){
+        workOrderService.deleteWorkOrder(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }
